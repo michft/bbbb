@@ -2,12 +2,13 @@
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
-#import cgi
-#import json
-#import SocketServer
+
+
+pids = 1
 
 # HTTPRequestHandler class
 class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
+
 
   # GET
   def do_GET(self):
@@ -49,20 +50,25 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
     os.chdir('..')
 
   def do_POST(self):
+
 # no sanity checking, no data varification
       os.chdir('./tasks')
-      os.mkdir('./' + str(pids))
-      od.chdir('./' + str(pids))
+      global pids
+
+      try:
+        os.mkdir('./' + str(pids))
+      except:
+        pass
+      os.chdir('./' + str(pids))
       print(os.getcwd())
+      pids += 1
       os.chdir('../..')
 
 def run():
   print('starting server...')
 
-
   # Server settings
   PORT = 9876
-  pids = 1
   server_address = ('127.0.0.1', PORT)
   httpd = HTTPServer(server_address, testHTTPServer_RequestHandler)
   print('running server on port ...', PORT)
