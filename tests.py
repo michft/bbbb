@@ -2,16 +2,21 @@
 
 import requests
 
-// POST /tasks
+# POST /tasks
 
-// GET /tasks/:taskid
+resp = requests.post('http://127.0.0.1:9000/tasks')
+if resp.status_code != 201:
+  raise ApiError('Cannot create task: {}'.format(resp.status_code))
+print('Created task. ID: {}'.format(resp.json()['id']))
 
-// PUT /tasks/:taskid
+# GET /tasks/:taskid
 
-// POST /jobs
+# PUT /tasks/:taskid
 
-// GET /jobs/:jobid/status
+# POST /jobs
 
-// GET /jobs/:jobid/output/...path...
+# GET /jobs/:jobid/status
+
+# GET /jobs/:jobid/output/...path...
 
 
