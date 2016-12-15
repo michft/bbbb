@@ -1,0 +1,2 @@
+Standard MIT licence
+Copyright Michael Tomkins michft@gmail.com
