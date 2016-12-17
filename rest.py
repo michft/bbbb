@@ -1,11 +1,24 @@
 #!/usr/bin/env python3
 
+"""
+handled Methods:
+  POST /tasks
+    In work code you put descriptions here.
+
+  GET /tasks/:taskid
+  PUT /tasks/:taskid
+  POST /jobs
+  GET /jobs/:jobid/status
+  GET /jobs/:jobid/output/...path...
+
+"""
+
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json, os
 
 pids = 1
+jid = 1
 
-# HTTPRequestHandler class
 class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
 
 
@@ -15,7 +28,6 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
     lst_pth = [x for x in path.split('/')]
 
     if lst_pth[1] == 'tasks':
-
       try:
         os.chdir( './' + lst_pth[1] + '/' + lst_pth[2])
         # Send response status code
@@ -51,8 +63,37 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
 
 
   def do_PUT(self):
-    os.chdir('./tasks')
-    os.chdir('..')
+    path = self.path
+    lst_pth = [x for x in path.split('/')]
+
+    if lst_pth[1] == 'tasks':
+
+      try:
+        os.chdir( './' + lst_pth[1] + '/' + lst_pth[2])
+        # Send response status code
+        print('Updating ' + os.getcwd() + '/script.sh\n')
+        length = self.headers['content-length']
+        data = self.rfile.read(int(length))
+
+        os.remove('./script.sh')
+
+        with open ('./script.sh', 'w') as fh:
+          fh.write(data.decode())
+
+        os.chmod('./script.sh' , int(493)) # gets converted to 755 octal
+        print(os.getcwd() + '/script.sh written.')
+        self.send_response(202)
+        self.send_header('Content-type', 'text/json')
+        self.end_headers()
+        #self.wfile.write(bytes('{"taskid" : ' + str(pids) + '}\n' , 'utf-8'))
+        os.chdir('../..')
+
+      except:
+        self.send_response(404)
+    else:
+      self.send_response(400)
+
+
 
   def do_POST(self):
     if self.path == '/tasks':
@@ -79,7 +120,50 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
         os.chdir('../..')
 
       except:
-        return self.send_response(400)
+        self.send_response(400)
+
+    elif self.path == '/jobs':
+      try:
+# Decode json, get task ID
+# change to jobs output Directory
+# fork term
+#   Set Env VArs in loop.
+#   run script
+#   set pid?
+#   set result?
+
+        global jid
+
+        os.chdir('./jobs')
+        os.makedirs('./' + str(jid) + '/output')
+        os.chdir('./' + str(jid) + '/output')
+        length = self.headers['content-length']
+        data = self.rfile.read(int(length))
+
+#        print(self.headers['content-type'])
+
+
+        job_dict = json.loads(data.decode())
+
+
+#        for key, value in job_dict.items():
+#            print(key, value)
+
+
+#        os.chmod('./script.sh' , int(493)) # gets converted to 755 octal
+#        print(os.getcwd() + '/script.sh written.')
+        self.send_response(202)
+        self.send_header('Content-type', 'text/json')
+        self.end_headers()
+        self.wfile.write(bytes('{"jobid" : ' + str(jid) + '}\n' , 'utf-8'))
+        jid += 1
+        os.chdir('../../..')
+
+      except:
+        self.send_response(404)
+
+    else:
+      self.send_response(400)
 
 
 def run():

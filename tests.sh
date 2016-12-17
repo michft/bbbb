@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-rm -rf tasks/*
+
+rm -rf tasks/*  jobs/*
+
 curl -X POST --data '#!/usr/bin/env bash
 
 echo "yeah!"
@@ -17,3 +19,27 @@ echo "Three"
 ' localhost:9876/tasks
 
 curl -X GET localhost:9876/tasks/1
+
+echo "tasks 3 before"
+cat ./tasks/3/script.sh
+
+curl -X PUT --data '#!/usr/bin/env bash
+
+echo "Oh yeah!"
+' localhost:9876/tasks/3
+
+echo "tasks 3 after"
+cat ./tasks/3/script.sh
+
+curl -X POST --data '{
+  "taskid" : 1,
+  "envvars" : {
+    "VAR1" : "VALUE",
+    "VAR2" : "VALUE"
+  }
+}
+' localhost:9876/jobs
+
+
+
+exit 0
