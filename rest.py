@@ -14,7 +14,8 @@ handled Methods:
 """
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import json, os
+from subprocess import Popen
+import json, os, shutil
 
 pids = 1
 jid = 1
@@ -124,13 +125,8 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
 
     elif self.path == '/jobs':
       try:
-# Decode json, get task ID
-# change to jobs output Directory
-# fork term
-#   Set Env VArs in loop.
-#   run script
-#   set pid?
-#   set result?
+# X Decode json, get task ID
+# X change to jobs output Directory
 
         global jid
 
@@ -145,13 +141,25 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
 
         job_dict = json.loads(data.decode())
 
-
+#        print(job_dict['taskid'])
 #        for key, value in job_dict.items():
 #            print(key, value)
 
+        shutil.copyfile('../../../tasks/' + str(job_dict['taskid']) + '/script.sh', './script.sh' )
+        os.chmod('./script.sh', int(493))
 
-#        os.chmod('./script.sh' , int(493)) # gets converted to 755 octal
-#        print(os.getcwd() + '/script.sh written.')
+
+# fork term
+#   Set Env VArs in loop.
+#   run script
+#   set pid?
+#   set result?
+        fout = open ('./result' , 'w')
+        p = Popen(['./script.sh'], stdout=fout, env=job_dict['envvars'])
+        fout.close()
+        fpid = open ('./' + str(p.pid), 'w')
+        fpid.write(str(p.pid))
+        print(str(dict(job_dict['envvars'])))
         self.send_response(202)
         self.send_header('Content-type', 'text/json')
         self.end_headers()
@@ -160,7 +168,8 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
         os.chdir('../../..')
 
       except:
-        self.send_response(404)
+        print('../../../tasks/' + str(job_dict['taskid']) + '/script.sh' )
+        self.send_response(418)
 
     else:
       self.send_response(400)
