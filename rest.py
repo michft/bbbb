@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import os
-
+import json, os
 
 pids = 1
 
@@ -35,7 +34,6 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
 
         # Send headers
         self.send_header('Content-type','text/html')
-        self.end_headers()
 
         # Send message back to client
         message = 'LA ' + os.getcwd()
@@ -46,11 +44,11 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
 
 
   def do_PUT(self):
-    os.chdir('/tasks')
+    os.chdir('./tasks')
     os.chdir('..')
 
   def do_POST(self):
-
+    if self.path == '/tasks':
 # no sanity checking, no data varification
       os.chdir('./tasks')
       global pids
@@ -58,9 +56,22 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
       try:
         os.mkdir('./' + str(pids))
       except:
-        pass
+        return self.send_response(400)
       os.chdir('./' + str(pids))
-      print(os.getcwd())
+      length = self.headers['content-length']
+      data = self.rfile.read(int(length))
+
+      with open ('./script.sh', 'w') as fh:
+        fh.write(data.decode())
+
+# self json pids
+      os.chmod('./script.sh' , int(493)) # get converted to 755 octal
+      print(os.getcwd() + '/script' + ' written.')
+      self.send_response(201)
+      self.send_header('Content-type', 'text/json')
+      self.end_headers()
+      self.wfile.write(bytes('{"taskid" : ' + str(pids) + '}' , 'utf-8'))
+
       pids += 1
       os.chdir('../..')
 
