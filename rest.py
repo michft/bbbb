@@ -11,23 +11,30 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
 
   # GET
   def do_GET(self):
-      if self.path == '/tasks':
-        os.chdir('./tasks')
+    path = self.path
+    lst_pth = [x for x in path.split('/')]
+
+    if lst_pth[1] == 'tasks':
+
+      try:
+        os.chdir( './' + lst_pth[1] + '/' + lst_pth[2])
         # Send response status code
-        self.send_response(200)
+        print(os.getcwd())
 
-        # Send headers
-        self.send_header('Content-type','text/html')
-        self.end_headers()
+        with open('./script.sh') as fh:
+          self.send_response(200)
+          self.send_header('Content-type', 'text/json')
+          self.end_headers()
+          self.wfile.write(fh.read().encode())
+        os.chdir('../..')
 
-        # Send message back to client
-        message = 'Hello world!' + os.getcwd()
-        # Write content as utf-8 data
-        self.wfile.write(bytes(message, 'utf8'))
-        os.chdir('..')
+      except:
+        self.send_response(400)
+        self.wfile.write(bytes('Something went wrong!\n', 'utf-8'))
 
-      else :
+    else :
         #Id = self.path.split('/')
+
         os.chdir('./tasks')
         # Send response status code
         self.send_response(200)
@@ -50,30 +57,30 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
   def do_POST(self):
     if self.path == '/tasks':
 # no sanity checking, no data varification
-      os.chdir('./tasks')
       global pids
 
       try:
+        os.chdir('./tasks')
         os.mkdir('./' + str(pids))
+        os.chdir('./' + str(pids))
+        length = self.headers['content-length']
+        data = self.rfile.read(int(length))
+
+        with open ('./script.sh', 'w') as fh:
+          fh.write(data.decode())
+
+        os.chmod('./script.sh' , int(493)) # gets converted to 755 octal
+        print(os.getcwd() + '/script.sh written.')
+        self.send_response(201)
+        self.send_header('Content-type', 'text/json')
+        self.end_headers()
+        self.wfile.write(bytes('{"taskid" : ' + str(pids) + '}\n' , 'utf-8'))
+        pids += 1
+        os.chdir('../..')
+
       except:
         return self.send_response(400)
-      os.chdir('./' + str(pids))
-      length = self.headers['content-length']
-      data = self.rfile.read(int(length))
 
-      with open ('./script.sh', 'w') as fh:
-        fh.write(data.decode())
-
-# self json pids
-      os.chmod('./script.sh' , int(493)) # get converted to 755 octal
-      print(os.getcwd() + '/script' + ' written.')
-      self.send_response(201)
-      self.send_header('Content-type', 'text/json')
-      self.end_headers()
-      self.wfile.write(bytes('{"taskid" : ' + str(pids) + '}' , 'utf-8'))
-
-      pids += 1
-      os.chdir('../..')
 
 def run():
   print('starting server...')
