@@ -72,9 +72,18 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
         os.chdir('../../..')
     elif lst_pth[3] == 'output':
       try:
-        pass
+        os.chdir( './' + lst_pth[1] + '/' + lst_pth[2] + '/output')
+        with open ( str(lst_pth[4]) , 'r') as fh:
+          s = fh.read()
+        self.send_response(200)
+        self.send_header('Content-type', 'text/json')
+        self.end_headers()
+        self.wfile.write(bytes( s , 'utf-8'))
+        os.chdir('../../..')
       except:
-        pass
+        self.send_response(400)
+        self.wfile.write(bytes('Something went wrong!\n', 'utf-8'))
+        os.chdir('../../..')
 
     else:
       self.send_response(400)

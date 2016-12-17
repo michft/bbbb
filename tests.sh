@@ -5,7 +5,7 @@ rm -rf tasks/*  jobs/*
 
 curl -X POST --data '#!/usr/bin/env bash
 
-echo "yeah!" >> ./output/file.txt
+echo "yeah!" >> ./file.txt
 exit 0
 ' localhost:9876/tasks
 
@@ -77,5 +77,7 @@ curl -X GET localhost:9876/jobs/1/status
 curl -X GET localhost:9876/jobs/2/status
 
 curl -X GET localhost:9876/jobs/3/status
+
+curl -X GET localhost:9876/jobs/1/output/file.txt
 
 exit 0
