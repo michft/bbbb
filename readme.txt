@@ -1,8 +1,11 @@
-POST /tasks is the only method completed.
+All Methods completed to basic responses
+
+Limits to some methods.
+
+GET /jobs/:jobid/status assumes errors generate stderr
+
+GET /jobs/:jobid/output/...path...  assumes string and byte compatable output
 
 Assumes writable ./ folder and doesn't use /tmp.
-Runs with standard permissions for user nobody.
-
-Started at 10:00., 30 mins for lunch, finishing now because time is up.
 
 Michael Tomkins

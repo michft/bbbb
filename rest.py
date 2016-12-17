@@ -126,12 +126,11 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
   def do_POST(self):
     if self.path == '/tasks':
 # no sanity checking, no data varification
-      global pids
 
       try:
-        os.chdir('./tasks')
-        os.mkdir('./' + str(pids))
-        os.chdir('./' + str(pids))
+        global pids
+        os.makedirs('./tasks/' + str(pids))
+        os.chdir('./tasks/' + str(pids))
 
         length = self.headers['content-length']
         data = self.rfile.read(int(length))
@@ -153,9 +152,8 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
     elif self.path == '/jobs':
       try:
         global jid
-        os.chdir('./jobs')
-        os.makedirs('./' + str(jid) + '/output')
-        os.chdir('./' + str(jid) + '/output')
+        os.makedirs('./jobs/' + str(jid) + '/output')
+        os.chdir('./jobs/' + str(jid) + '/output')
 
         length = self.headers['content-length']
         data = self.rfile.read(int(length))
